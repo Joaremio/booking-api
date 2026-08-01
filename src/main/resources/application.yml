@@ -1,16 +1,16 @@
 spring:
   application:
     name: booking
-
   datasource:
     url: jdbc:postgresql://localhost:5432/booking
     username: postgres
     password: 1234567
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: validate
-
   flyway:
     enabled: true
+jwt:
+  secret: "xWlGipCAQcZVaD7WtCxEAPKM554DF1N3taZfh+sboJTaHW+JRC3H5B7iJxJB+znjJFm+YJs6jywSx5sxGbik5g=="
+  expiration: "86400000"
