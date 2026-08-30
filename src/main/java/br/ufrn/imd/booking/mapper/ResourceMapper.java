@@ -1,4 +1,4 @@
-Cpackage br.ufrn.imd.booking.mapper;
+package br.ufrn.imd.booking.mapper;
 import br.ufrn.imd.booking.dto.ResourceRequestDTO;
 import br.ufrn.imd.booking.dto.ResourceResponseDTO;
 import br.ufrn.imd.booking.entity.Resource;
