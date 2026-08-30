@@ -7,6 +7,7 @@ import br.ufrn.imd.booking.service.ResourceService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,7 @@ public class ResourceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResourceResponseDTO> createResource (@Valid @RequestBody ResourceRequestDTO data) {
         ResourceResponseDTO resource = resourceService.createResource(data);
         return ResponseEntity.status(HttpStatus.CREATED).body(resource);
@@ -40,6 +42,7 @@ public class ResourceController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResourceResponseDTO> updateResource(
             @PathVariable UUID id,
             @Valid @RequestBody ResourceRequestDTO data) {
@@ -47,6 +50,7 @@ public class ResourceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteResource(@PathVariable UUID id) {
         resourceService.deleteResource(id);
         return ResponseEntity.noContent().build();
