@@ -1,16 +1,19 @@
 package br.ufrn.imd.booking.controller;
 
 
+import br.ufrn.imd.booking.dto.AvailabilitySlotDTO;
 import br.ufrn.imd.booking.dto.BookingRequestDTO;
 import br.ufrn.imd.booking.dto.BookingResponseDTO;
 import br.ufrn.imd.booking.entity.User;
 import br.ufrn.imd.booking.service.BookingService;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,5 +57,13 @@ public class BookingController {
     ) {
         bookingService.cancelBooking(id, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/availability")
+    public ResponseEntity<List<AvailabilitySlotDTO>> getAvailability(
+            @RequestParam UUID resourceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        return ResponseEntity.ok(bookingService.getAvailability(resourceId, date));
     }
 }

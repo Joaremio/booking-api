@@ -1,10 +1,7 @@
 package br.ufrn.imd.booking.service;
 
 
-import br.ufrn.imd.booking.dto.BookingRequestDTO;
-import br.ufrn.imd.booking.dto.BookingResponseDTO;
-import br.ufrn.imd.booking.dto.ResourceResponseDTO;
-import br.ufrn.imd.booking.dto.UserResponseDTO;
+import br.ufrn.imd.booking.dto.*;
 import br.ufrn.imd.booking.entity.Booking;
 import br.ufrn.imd.booking.entity.Resource;
 import br.ufrn.imd.booking.entity.User;
@@ -22,7 +19,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -182,5 +181,40 @@ public class BookingServiceTest {
         when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
 
         assertThrows(AccessDeniedException.class, () -> bookingService.getBookingById(booking.getId(), outroUser));
+    }
+
+    @Test
+    void getAvailability_retornaReservasDoRecurso() {
+
+        LocalDate date = LocalDate.of(2026, 9, 10);
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
+
+        AvailabilitySlotDTO slotEsperado = new AvailabilitySlotDTO(
+                booking.getId(),
+                booking.getStartDateTime(),
+                booking.getEndDateTime()
+        );
+
+        when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
+        when(bookingRepository.findBookingsByResourceAndDateRange(resourceId, startOfDay, endOfDay))
+                .thenReturn(List.of(booking));
+
+        List<AvailabilitySlotDTO> results = bookingService.getAvailability(resourceId, date);
+
+        assertEquals(List.of(slotEsperado), results);
+        verify(resourceRepository).findById(resourceId);
+    }
+
+
+    @Test
+    void getAvailability_quandoResourceNaoExiste_lancaException() {
+        UUID resourceIdInexistente = UUID.randomUUID();
+        LocalDate date = LocalDate.of(2026, 9, 10);
+
+        when(resourceRepository.findById(resourceIdInexistente)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> bookingService.getAvailability(resourceIdInexistente, date));
     }
 }

@@ -1,5 +1,6 @@
 package br.ufrn.imd.booking.service;
 
+import br.ufrn.imd.booking.dto.AvailabilitySlotDTO;
 import br.ufrn.imd.booking.dto.BookingRequestDTO;
 import br.ufrn.imd.booking.dto.BookingResponseDTO;
 import br.ufrn.imd.booking.entity.Booking;
@@ -11,8 +12,13 @@ import br.ufrn.imd.booking.mapper.BookingMapper;
 import br.ufrn.imd.booking.repository.BookingRepository;
 import br.ufrn.imd.booking.repository.ResourceRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.cglib.core.Local;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +58,26 @@ public class BookingService {
         Booking savedBooking = bookingRepository.save(booking);
 
         return bookingMapper.toResponseDTO(savedBooking);
+    }
+
+    public List<AvailabilitySlotDTO> getAvailability(UUID resourceId, LocalDate date) {
+
+        resourceRepository.findById(resourceId).orElseThrow(()->new EntityNotFoundException("Resource not found"));
+
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
+
+        List<Booking> bookings = bookingRepository.findBookingsByResourceAndDateRange(
+                resourceId, startOfDay, endOfDay
+        );
+
+        return bookings.stream()
+                .map(booking -> new AvailabilitySlotDTO(
+                        booking.getId(),
+                        booking.getStartDateTime(),
+                        booking.getEndDateTime()
+                ))
+                .toList();
     }
 
     public List<BookingResponseDTO> getBookingsByUser(UUID userId) {
