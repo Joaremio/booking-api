@@ -8,14 +8,11 @@ import br.ufrn.imd.booking.entity.User;
 import br.ufrn.imd.booking.enums.Role;
 import br.ufrn.imd.booking.enums.Status;
 import br.ufrn.imd.booking.mapper.BookingMapper;
-import br.ufrn.imd.booking.mapper.ResourceMapper;
 import br.ufrn.imd.booking.repository.BookingRepository;
 import br.ufrn.imd.booking.repository.ResourceRepository;
-import br.ufrn.imd.booking.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -23,9 +20,7 @@ import java.util.UUID;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
-
     private final ResourceRepository resourceRepository;
-
     private final BookingMapper bookingMapper;
 
     public BookingService(BookingRepository bookingRepository,  ResourceRepository resourceRepository,  BookingMapper bookingMapper) {
@@ -35,6 +30,7 @@ public class BookingService {
     }
 
     public BookingResponseDTO createBooking(BookingRequestDTO data, User user) {
+
         Resource resource = resourceRepository.findById(data.resourceId()).orElseThrow(()->new EntityNotFoundException("Resource not found"));
 
         boolean hasConflict = bookingRepository.existsOverlappingBooking(
@@ -60,15 +56,15 @@ public class BookingService {
 
     public List<BookingResponseDTO> getBookingsByUser(UUID userId) {
         List<Booking> bookings = bookingRepository.findAllBookingsByUserId(userId);
-
         return bookings.stream().map( bookingMapper :: toResponseDTO ).toList();
     }
 
     public BookingResponseDTO getBookingById(UUID bookingId, User requester) {
+
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(()->new EntityNotFoundException("Booking not found"));
 
         boolean isOwner = booking.getUser().getId().equals(requester.getId());
-        boolean isAdmin = booking.getUser().getRole() ==  Role.ADMIN;
+        boolean isAdmin = requester.getRole() ==  Role.ADMIN;
 
         if (!isOwner && !isAdmin) {
             throw new AccessDeniedException("You do not have permission to view this booking.");
@@ -78,6 +74,7 @@ public class BookingService {
     }
 
     public void cancelBooking(UUID bookingId, User requester) {
+
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
 
