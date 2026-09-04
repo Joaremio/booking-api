@@ -12,28 +12,22 @@ import br.ufrn.imd.booking.mapper.BookingMapper;
 import br.ufrn.imd.booking.repository.BookingRepository;
 import br.ufrn.imd.booking.repository.ResourceRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.cglib.core.Local;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final ResourceRepository resourceRepository;
     private final BookingMapper bookingMapper;
-
-    public BookingService(BookingRepository bookingRepository,  ResourceRepository resourceRepository,  BookingMapper bookingMapper) {
-        this.bookingRepository = bookingRepository;
-        this.resourceRepository = resourceRepository;
-        this.bookingMapper = bookingMapper;
-    }
 
     public BookingResponseDTO createBooking(BookingRequestDTO data, User user) {
 

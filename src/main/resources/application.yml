@@ -14,3 +14,8 @@ spring:
 jwt:
   secret: "xWlGipCAQcZVaD7WtCxEAPKM554DF1N3taZfh+sboJTaHW+JRC3H5B7iJxJB+znjJFm+YJs6jywSx5sxGbik5g=="
   expiration: "86400000"
+
+app:
+  admin:
+    email: ${ADMIN_EMAIL:admin@email.com}
+    password: ${ADMIN_PASSWORD:admin123456}

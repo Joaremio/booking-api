@@ -6,20 +6,17 @@ import br.ufrn.imd.booking.entity.Resource;
 import br.ufrn.imd.booking.mapper.ResourceMapper;
 import br.ufrn.imd.booking.repository.ResourceRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ResourceService {
 
     private final ResourceRepository resourceRepository;
     private final ResourceMapper resourceMapper;
-
-    public ResourceService (ResourceRepository resourceRepository, ResourceMapper resourceMapper) {
-        this.resourceRepository = resourceRepository;
-        this.resourceMapper = resourceMapper;
-    }
 
     public ResourceResponseDTO createResource(ResourceRequestDTO data) {
         Resource resource = resourceMapper.toEntity(data);
