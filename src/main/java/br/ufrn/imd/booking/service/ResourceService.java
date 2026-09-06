@@ -3,9 +3,9 @@ package br.ufrn.imd.booking.service;
 import br.ufrn.imd.booking.dto.ResourceRequestDTO;
 import br.ufrn.imd.booking.dto.ResourceResponseDTO;
 import br.ufrn.imd.booking.entity.Resource;
+import br.ufrn.imd.booking.exception.ResourceNotFoundException;
 import br.ufrn.imd.booking.mapper.ResourceMapper;
 import br.ufrn.imd.booking.repository.ResourceRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -32,14 +32,14 @@ public class ResourceService {
 
     public ResourceResponseDTO getResourceById(UUID id) {
         Resource resource = resourceRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("Resource not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Resource not found"));
 
         return resourceMapper.toResponseDTO(resource);
     }
 
     public ResourceResponseDTO updateResource(UUID id, ResourceRequestDTO data) {
         Resource resource = resourceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Resource not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: " + id));
 
         resource.setName(data.name());
         resource.setDescription(data.description());
@@ -53,7 +53,7 @@ public class ResourceService {
 
     public void deleteResource(UUID id) {
         Resource resource = resourceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Resource not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: " + id));
 
         resource.setActive(false);
         resourceRepository.save(resource);

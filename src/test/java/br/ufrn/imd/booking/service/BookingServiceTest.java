@@ -7,10 +7,12 @@ import br.ufrn.imd.booking.entity.Resource;
 import br.ufrn.imd.booking.entity.User;
 import br.ufrn.imd.booking.enums.Role;
 import br.ufrn.imd.booking.enums.Status;
+import br.ufrn.imd.booking.exception.BookingConflictException;
+import br.ufrn.imd.booking.exception.InvalidBookingPeriodException;
+import br.ufrn.imd.booking.exception.ResourceNotFoundException;
 import br.ufrn.imd.booking.mapper.BookingMapper;
 import br.ufrn.imd.booking.repository.BookingRepository;
 import br.ufrn.imd.booking.repository.ResourceRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -112,7 +114,20 @@ public class BookingServiceTest {
     @Test
     void createBookingResourceNotFound(){
         when(resourceRepository.findById(resourceId)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> bookingService.createBooking(data, user));
+        assertThrows(ResourceNotFoundException.class, () -> bookingService.createBooking(data, user));
+    }
+
+    @Test
+    void createBookingPeriodoInvalido(){
+        when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
+
+        BookingRequestDTO periodoInvalido = new BookingRequestDTO(
+                resourceId,
+                LocalDateTime.of(2026, 9, 1, 11, 0),
+                LocalDateTime.of(2026, 9, 1, 10, 0)
+        );
+
+        assertThrows(InvalidBookingPeriodException.class, () -> bookingService.createBooking(periodoInvalido, user));
     }
 
     @Test
@@ -120,7 +135,7 @@ public class BookingServiceTest {
         when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
         when(bookingRepository.existsOverlappingBooking(resourceId, data.startDateTime(), data.endDateTime())).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> bookingService.createBooking(data, user));
+        assertThrows(BookingConflictException.class, () -> bookingService.createBooking(data, user));
     }
 
     @Test
@@ -214,7 +229,7 @@ public class BookingServiceTest {
 
         when(resourceRepository.findById(resourceIdInexistente)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> bookingService.getAvailability(resourceIdInexistente, date));
     }
 }

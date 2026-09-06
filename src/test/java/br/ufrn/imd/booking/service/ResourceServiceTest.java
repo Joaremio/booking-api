@@ -3,9 +3,9 @@ package br.ufrn.imd.booking.service;
 import br.ufrn.imd.booking.dto.ResourceRequestDTO;
 import br.ufrn.imd.booking.dto.ResourceResponseDTO;
 import br.ufrn.imd.booking.entity.Resource;
+import br.ufrn.imd.booking.exception.ResourceNotFoundException;
 import br.ufrn.imd.booking.mapper.ResourceMapper;
 import br.ufrn.imd.booking.repository.ResourceRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -97,7 +97,7 @@ class ResourceServiceTest {
 
         when(resourceRepository.findById(idInexistente)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             resourceService.getResourceById(idInexistente);
         });
     }
@@ -129,7 +129,7 @@ class ResourceServiceTest {
 
         when(resourceRepository.findById(idInexistente)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> {resourceService.deleteResource(idInexistente);});
+        assertThrows(ResourceNotFoundException.class, () -> {resourceService.deleteResource(idInexistente);});
     }
 
     @Test
@@ -163,7 +163,7 @@ class ResourceServiceTest {
 
         when(resourceRepository.findById(idInexistente)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             resourceService.updateResource(idInexistente, data);
         });
     }

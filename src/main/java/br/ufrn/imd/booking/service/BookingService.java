@@ -8,10 +8,13 @@ import br.ufrn.imd.booking.entity.Resource;
 import br.ufrn.imd.booking.entity.User;
 import br.ufrn.imd.booking.enums.Role;
 import br.ufrn.imd.booking.enums.Status;
+import br.ufrn.imd.booking.exception.BookingConflictException;
+import br.ufrn.imd.booking.exception.BookingNotFoundException;
+import br.ufrn.imd.booking.exception.InvalidBookingPeriodException;
+import br.ufrn.imd.booking.exception.ResourceNotFoundException;
 import br.ufrn.imd.booking.mapper.BookingMapper;
 import br.ufrn.imd.booking.repository.BookingRepository;
 import br.ufrn.imd.booking.repository.ResourceRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -31,14 +34,18 @@ public class BookingService {
 
     public BookingResponseDTO createBooking(BookingRequestDTO data, User user) {
 
-        Resource resource = resourceRepository.findById(data.resourceId()).orElseThrow(()->new EntityNotFoundException("Resource not found"));
+        Resource resource = resourceRepository.findById(data.resourceId()).orElseThrow(()->new ResourceNotFoundException("Resource not found"));
+
+        if (!data.endDateTime().isAfter(data.startDateTime())) {
+            throw new InvalidBookingPeriodException("The end time must be after the start time.");
+        }
 
         boolean hasConflict = bookingRepository.existsOverlappingBooking(
                 resource.getId(), data.startDateTime(), data.endDateTime()
         );
 
         if(hasConflict){
-            throw new IllegalArgumentException("There is already a booking for this resource in this time slot.");
+            throw new BookingConflictException( "There is already a booking for this resource in this time slot.");
         }
 
         Booking booking = Booking.builder()
@@ -56,7 +63,7 @@ public class BookingService {
 
     public List<AvailabilitySlotDTO> getAvailability(UUID resourceId, LocalDate date) {
 
-        resourceRepository.findById(resourceId).orElseThrow(()->new EntityNotFoundException("Resource not found"));
+        resourceRepository.findById(resourceId).orElseThrow(()->new ResourceNotFoundException("Resource not found"));
 
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
@@ -81,7 +88,7 @@ public class BookingService {
 
     public BookingResponseDTO getBookingById(UUID bookingId, User requester) {
 
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()->new EntityNotFoundException("Booking not found"));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()->new BookingNotFoundException("Booking not found"));
 
         boolean isOwner = booking.getUser().getId().equals(requester.getId());
         boolean isAdmin = requester.getRole() ==  Role.ADMIN;
@@ -96,7 +103,7 @@ public class BookingService {
     public void cancelBooking(UUID bookingId, User requester) {
 
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+                .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
 
         boolean isOwner = booking.getUser().getId().equals(requester.getId());
         boolean isAdmin = requester.getRole() == Role.ADMIN;

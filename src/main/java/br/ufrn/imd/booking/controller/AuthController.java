@@ -36,7 +36,8 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Registrar novo usuário", description = "Cria uma nova conta de usuário.")
     @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso")
-    @ApiResponse(responseCode = "400", description = "Dados inválidos ou e-mail já cadastrado")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "409", description = "E-mail já cadastrado")
     public ResponseEntity<UserResponseDTO> register(@RequestBody @Valid UserRequestDTO dto) {
         UserResponseDTO response = userService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
