@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: booking-db
+    environment:
+      POSTGRES_DB: booking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234567
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d booking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: booking-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/booking
+      DB_USERNAME: postgres
+      DB_PASSWORD: 1234567
+      JWT_SECRET: xWlGipCAQcZVaD7WtCxEAPKM554DF1N3taZfh+sboJTaHW+JRC3H5B7iJxJB+znjJFm+YJs6jywSx5sxGbik5g==
+      ADMIN_EMAIL: admin@email.com
+      ADMIN_PASSWORD: admin123456
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:
