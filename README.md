@@ -2,8 +2,6 @@
 
 API REST para agendamento de recursos (salas, equipamentos e outros espaços). Permite autenticação com JWT, gestão de recursos por administradores e reserva de horários por usuários, com prevenção de conflitos de horário.
 
-> Projeto de estudo/portfólio desenvolvido no contexto do IMD/UFRN.
-
 ## Tecnologias
 
 ![Java](https://img.shields.io/badge/Java-21-007396?style=for-the-badge&logo=openjdk&logoColor=white)
